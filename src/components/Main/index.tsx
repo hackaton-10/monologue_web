@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import font from '../../styles/font';
 import MakingFrame from 'assets/MakingFrame.svg';
 
 const Main = () => {
+  const navigate = useNavigate();
+
   return (
     <StyledMain>
       <TitleContainer>
@@ -14,7 +17,13 @@ const Main = () => {
           <br />
           OPEN !
         </Title>
-        <MakingFrameButton src={MakingFrame} alt="프레임 만들러가기"></MakingFrameButton>
+        <ButtonContainer
+          onClick={() => {
+            navigate('/Frame');
+          }}
+        >
+          <MakingFrameButton src={MakingFrame} alt="프레임 만들러가기"></MakingFrameButton>
+        </ButtonContainer>
       </TitleContainer>
       <ContentContainer>
         추후 @photoism_behind 계정에서 특별한 추억을 만나보세요 !
@@ -40,14 +49,19 @@ const StyledMain = styled.div`
 
 const TitleContainer = styled.div`
   display: flex;
+  justify-content: space-between;
 `;
 
 const Title = styled.div`
   ${font.title}
 `;
 
+const ButtonContainer = styled.div``;
+
 const MakingFrameButton = styled.img`
-  margin-top: 300px;
+  margin-right: 240px;
+  margin-bottom: 10px;
+  cursor: pointer;
 `;
 
 const ContentContainer = styled.div`
