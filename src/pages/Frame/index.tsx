@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 import { postImg } from 'apis/posts';
-import Logo from 'assets/logo.svg';
+// import Logo from 'assets/logo.svg';
 
 interface ColorBoxProps {
   bgColor: string;
@@ -224,7 +224,6 @@ const Frame = () => {
               </StickerWrapper>
             </Draggable>
           ))}
-          <LogoContainer src={Logo} alt="로고" />
         </FrameContainer>
         <ResultContainer onClick={handleCompleteImg} disabled={isUploading}>
           {isUploading ? '업로드 중...' : '완성하기'}
@@ -376,18 +375,15 @@ const PreviewContainer = styled.div`
 `;
 
 const FrameContainer = styled.div<FrameProps>`
-  position: relative;
   display: flex;
-  width: 476px;
-  height: 648px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  width: 370px;
+  height: 500px;
   background-color: ${(props: { bgColor: string }) => props.bgColor};
   position: relative;
   overflow: hidden;
-  justify-content: center;
-  align-items: center;
-  align-content: flex-start;
-  padding-top: 12px;
+  padding-top: 17px;
+  padding-left: 17px;
   gap: 12px;
 
   ${(props) =>
@@ -430,16 +426,10 @@ const StickerWrapper = styled.div`
   z-index: 100;
 `;
 
-const LogoContainer = styled.img`
-  width: 32%;
-  background-color: transparent;
-  margin-top: 8px;
-`;
-
 const DeleteButton = styled.button`
   position: absolute;
-  top: 12px;
-  right: 112px;
+  top: -12px;
+  right: -120px;
   background: ${color.black};
   color: white;
   border: none;
