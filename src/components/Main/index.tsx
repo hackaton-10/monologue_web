@@ -59,8 +59,8 @@ const Title = styled.div`
 const ButtonContainer = styled.div``;
 
 const MakingFrameButton = styled.img`
-  margin-right: 240px;
-  margin-bottom: 10px;
+  padding-top: 160px;
+  padding-right: 300px;
   cursor: pointer;
 `;
 

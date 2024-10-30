@@ -13,6 +13,7 @@ const font = {
   p2: fontGenerator(400, 1, 120, 0.15),
   p3: fontGenerator(500, 1.5, 110, 0.15),
   p4: fontGenerator(100, 1.5, 110, -0.8),
+  p5: fontGenerator(400, 1, 110, 0.15),
 };
 
 export default font;

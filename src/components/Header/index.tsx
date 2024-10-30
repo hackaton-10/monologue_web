@@ -1,13 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 import Logo from 'assets/logo.svg';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100); // 스크롤이 100px 이상일 때 불투명하게
+      setIsScrolled(window.scrollY > 100);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -16,7 +18,13 @@ const Header = () => {
 
   return (
     <StyledHeader isScrolled={isScrolled}>
-      <LogoContainer src={Logo} alt="로고" />
+      <LogoContainer
+        onClick={() => {
+          navigate('/');
+        }}
+        src={Logo}
+        alt="로고"
+      />
       <LoginButton>로그인</LoginButton>
     </StyledHeader>
   );
@@ -48,6 +56,7 @@ const LogoContainer = styled.img`
   height: 40px;
   z-index: 1;
   background-color: transparent;
+  cursor: pointer;
 `;
 
 const LoginButton = styled.button`
