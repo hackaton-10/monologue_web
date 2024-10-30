@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import Draggable from 'react-draggable';
 import color from 'styles/color';
 import font from 'styles/font';
 
@@ -13,9 +14,15 @@ interface FrameProps {
   imageUrl?: string;
 }
 
+interface Sticker {
+  src: string;
+  width?: number;
+  height?: number;
+}
 const Frame = () => {
   const [color, setColor] = useState<string>('#ffffff');
   const [image, setImage] = useState<string>('');
+  const [stickers, setStickers] = useState<Sticker[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -30,10 +37,38 @@ const Frame = () => {
     }
   };
 
+  const handleStickerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = (e: ProgressEvent<FileReader>) => {
+        const result = e.target?.result;
+        if (result && typeof result === 'string') {
+          setStickers((prevStickers) => [...prevStickers, { src: result }]);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleReset = () => {
     if (window.confirm('이미지를 삭제하시겠습니까?')) {
       setImage('');
+      setStickers([]);
     }
+  };
+
+  const handleStickerLoad = (event: React.SyntheticEvent<HTMLImageElement>, index: number) => {
+    const img = event.currentTarget;
+    setStickers((prevStickers) =>
+      prevStickers.map((sticker, i) =>
+        i === index ? { ...sticker, width: img.naturalWidth, height: img.naturalHeight } : sticker,
+      ),
+    );
+  };
+
+  const handleDeleteSticker = (index: number) => {
+    setStickers((prevStickers) => prevStickers?.filter((_, i) => i !== index) || []);
   };
 
   return (
@@ -47,21 +82,21 @@ const Frame = () => {
             <ColorBox bgColor="#E5E5E5" onClick={() => setColor('#E5E5E5')} />
             <ColorBox bgColor="#808080" onClick={() => setColor('#808080')} />
             <ColorBox bgColor="#4D4D4D" onClick={() => setColor('#4D4D4D')} />
-            <ColorBox bgColor="#000000" onClick={() => setColor('#000000')} />
+            <ColorBox bgColor="#343434" onClick={() => setColor('#343434')} />
             <ColorBox bgColor="#000000" onClick={() => setColor('#000000')} />
             <ColorBox bgColor="#FF0000" onClick={() => setColor('#FF0000')} />
             <ColorBox bgColor="#0000FF" onClick={() => setColor('#0000FF')} />
           </ColorPalette>
+          <StickerContainer htmlFor="sticker">
+            <FileInputText>스티커 업로드하기</FileInputText>
+          </StickerContainer>
+          <FileInput type="file" accept="image/*" id="sticker" onChange={handleStickerUpload} />
         </FrameColorLayout>
         {image ? (
           <ResetButton onClick={handleReset}>새로운 사진 넣기</ResetButton>
         ) : (
           <FileInputWrapper>
-            <PlaceholderText>
-              여기에 이미지를 드롭하거나 드래그하니다
-              <br />
-              파일을 선택하세요
-            </PlaceholderText>
+            <PlaceholderText>여기에 이미지를 드롭하거나 드래그하여 파일을 선택하세요</PlaceholderText>
             <FileInputContainer htmlFor="file">
               <FileInputText>파일 업로드하기</FileInputText>
             </FileInputContainer>
@@ -70,7 +105,26 @@ const Frame = () => {
         )}
       </EditContainer>
       <PreviewContainer>
-        <FrameContainer bgColor={color} imageUrl={image}></FrameContainer>
+        <FrameContainer bgColor={color} imageUrl={image}>
+          <FrameImg />
+          <FrameImg />
+          <FrameImg />
+          <FrameImg />
+          {stickers &&
+            stickers.map((sticker, index) => (
+              <Draggable key={index}>
+                <StickerWrapper>
+                  <StickerContiner
+                    src={sticker.src}
+                    alt={`sticker-${index}`}
+                    onLoad={(e) => handleStickerLoad(e, index)}
+                  />
+                  <DeleteButton onClick={() => handleDeleteSticker(index)}>X</DeleteButton>
+                </StickerWrapper>
+              </Draggable>
+            ))}
+        </FrameContainer>
+        <ResultContainer>완성하기</ResultContainer>
       </PreviewContainer>
     </StyledFrame>
   );
@@ -80,10 +134,9 @@ export default Frame;
 
 const StyledFrame = styled.div`
   width: 100%;
-  height: 100%;
+  height: 924px;
   display: flex;
   padding-left: 60px;
-  padding-right: 60px;
   border-top: 1px solid black;
 `;
 
@@ -96,7 +149,7 @@ const EditContainer = styled.div`
   border-right: 1px solid ${color.black};
   padding-right: 60px;
   padding-top: 20px;
-  gap: 24%;
+  gap: 16%;
 `;
 
 const FrameColorLayout = styled.div`
@@ -120,6 +173,19 @@ const ColorPalette = styled.div`
   width: 100%;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+`;
+
+const StickerContainer = styled.label`
+  display: flex;
+  gap: 24px;
+  border: 1px solid black;
+  height: 48px;
+  border-radius: 4px;
+  color: ${color.black};
+  background-color: ${color.white};
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 `;
 
 const GradientColor = styled.div`
@@ -192,21 +258,27 @@ const ResetButton = styled.button`
 `;
 
 const PreviewContainer = styled.div`
+  height: 108%;
+  width: 140%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 232px;
-  height: 696px;
+  gap: 20px;
   justify-content: center;
   align-items: center;
+  background-color: ${color.gray300};
 `;
 
 const FrameContainer = styled.div<FrameProps>`
-  width: 100%;
-  height: 160px;
+  display: flex;
+  flex-direction: column;
+  width: 232px;
+  height: 696px;
   background-color: ${(props: { bgColor: string }) => props.bgColor};
   position: relative;
   overflow: hidden;
+  padding-top: 17px;
+  padding-left: 17px;
+  gap: 12px;
 
   ${(props) =>
     props.imageUrl &&
@@ -223,4 +295,55 @@ const FrameContainer = styled.div<FrameProps>`
       background-position: center;
     }
   `}
+`;
+
+const FrameImg = styled.div`
+  width: 200px;
+  height: 132px;
+  background-color: ${color.gray300};
+  z-index: 1;
+`;
+
+const StickerContiner = styled.img`
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  cursor: grab;
+  z-index: 10;
+  background-color: transparent;
+`;
+
+const StickerWrapper = styled.div`
+  position: relative;
+  display: flex;
+  gap: 4px;
+  z-index: 100;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 112px;
+  background: ${color.black};
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 3px 6px;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
+
+const ResultContainer = styled.div`
+  padding: 10px 36px;
+  border: none;
+  color: white;
+  background-color: black;
+  border-radius: 20px;
+  cursor: pointer;
 `;
