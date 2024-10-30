@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
 export const customAxios: AxiosInstance = axios.create({
-  baseURL: 'http://10.129.57.195:5000',
+  baseURL: 'http://13.209.111.163:8080',
   headers: {
-    'Content-Type': 'multipart/form-data',
+    'Content-Type': 'application/json',
   },
 });
 
