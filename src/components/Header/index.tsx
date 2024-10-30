@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 import Logo from 'assets/logo.svg';
 import LoginModal from 'components/Login/index';
+import { user } from 'apis/gets';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [userInfo, setUserInfo] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +28,16 @@ const Header = () => {
     setVisible(false);
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await user();
+        setUserInfo(data.data.name);
+      } catch {}
+    };
+    fetchUser();
+  }, []);
+
   return (
     <StyledHeader isScrolled={isScrolled}>
       <LogoContainer
@@ -35,7 +47,7 @@ const Header = () => {
         src={Logo}
         alt="로고"
       />
-      <LoginButton onClick={showLoginModal}>로그인</LoginButton>
+      {userInfo ? <div>{userInfo} 님</div> : <LoginButton onClick={showLoginModal}>로그인</LoginButton>}
       {visible && <LoginModal handleClose={closeLoginModal} />}
     </StyledHeader>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { styled } from 'styled-components';
+import { signIn } from 'apis/posts';
+import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 
@@ -8,13 +10,23 @@ interface Props {
 }
 
 const Login = ({ handleClose }: Props) => {
-  const [email, setEmail] = useState('');
+  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
-    handleClose();
+  const handleLogin = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (id.length === 0 || password.length === 0) {
+      return toast.error('아이디 또는 비밀번호를 입력해주세요');
+    }
+    try {
+      const data = await signIn(id, password);
+      localStorage.setItem('accessToken', data.token);
+      handleClose();
+      window.location.reload();
+      return toast.success('로그인 성공');
+    } catch {
+      return toast.error('에러가 발생하였습니다');
+    }
   };
 
   return (
@@ -25,7 +37,7 @@ const Login = ({ handleClose }: Props) => {
         <InnerFrame>
           <InputContainer>
             <NamingText>아이디</NamingText>
-            <Input type="email" placeholder="아이디" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input type="id" placeholder="아이디" value={id} onChange={(e) => setId(e.target.value)} />
           </InputContainer>
           <InputContainer>
             <NamingText>비밀번호</NamingText>
