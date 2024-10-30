@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import font from '../../styles/font';
 import MakingFrame from 'assets/MakingFrame.svg';
 
 const Main = () => {
+  const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
+
+  const handledd = () => {
+    setIsLogin(true);
+  };
 
   return (
     <StyledMain>
       <TitleContainer>
-        <Title>
+        <Title onClick={handledd}>
           AI
           <br />
           FRAME
@@ -22,7 +27,7 @@ const Main = () => {
             navigate('/Frame');
           }}
         >
-          <MakingFrameButton src={MakingFrame} alt="프레임 만들러가기"></MakingFrameButton>
+          {isLogin && <MakingFrameButton src={MakingFrame} alt="프레임 만들러가기"></MakingFrameButton>}
         </ButtonContainer>
       </TitleContainer>
       <ContentContainer>
