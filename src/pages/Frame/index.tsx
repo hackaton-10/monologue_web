@@ -96,7 +96,11 @@ const Frame = () => {
           <ResetButton onClick={handleReset}>새로운 사진 넣기</ResetButton>
         ) : (
           <FileInputWrapper>
-            <PlaceholderText>여기에 이미지를 드롭하거나 드래그하여 파일을 선택하세요</PlaceholderText>
+            <PlaceholderText>
+              여기에 이미지를 드롭하거나
+              <br />
+              드래그하여 파일을 선택하세요
+            </PlaceholderText>
             <FileInputContainer htmlFor="file">
               <FileInputText>파일 업로드하기</FileInputText>
             </FileInputContainer>
@@ -253,8 +257,11 @@ const FileInput = styled.input`
 const ResetButton = styled.button`
   width: 100%;
   cursor: pointer;
-  border: 1px solid ${color.black};
-  padding: 8px;
+  height: 48px;
+  border-radius: 4px;
+  color: ${color.black};
+  background-color: ${color.white};
+  border: 1px solid black;
 `;
 
 const PreviewContainer = styled.div`
