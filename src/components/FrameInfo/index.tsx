@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { styled } from 'styled-components';
-import { signIn } from 'apis/posts';
+import React, { useState, KeyboardEvent } from 'react';
+import styled from 'styled-components';
 import color from 'styles/color';
 import font from 'styles/font';
 
@@ -9,44 +8,60 @@ interface Props {
 }
 
 const FrameInfo = ({ handleClose }: Props) => {
-  const [id, setId] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
 
-  const handleFrameInfo = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    if (id.length === 0 || password.length === 0) {
-      alert('아이디 또는 비밀번호 입력하세요');
+  const handleTagAddition = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim() !== '') {
+      if (!tags.includes(tagInput)) {
+        setTags([...tags, tagInput]);
+      }
+      setTagInput('');
     }
-    try {
-      const data = await signIn(id, password);
-      localStorage.setItem('accessToken', data.data.accessToken);
-      handleClose();
-      alert('로그인 성공');
-    } catch {
-      return alert('에러가 발생하였습니다');
-    }
+  };
+
+  const handleTagDeletion = (tagToDelete: string) => {
+    setTags(tags.filter((tag) => tag !== tagToDelete));
+  };
+
+  const handleCompleteFrame = () => {
+    console.log(tags, name);
   };
 
   return (
     <FrameInfoOverlay>
       <StyledFrameInfo>
-        <Title>[로그인]</Title>
+        <Title>[프레임 정보]</Title>
         <DeleteContainer onClick={handleClose}>x</DeleteContainer>
         <InnerFrame>
-          <InputContainer>
-            <NamingText>아이디</NamingText>
-            <Input type="id" placeholder="아이디" value={id} onChange={(e) => setId(e.target.value)} />
-          </InputContainer>
-          <InputContainer>
-            <NamingText>비밀번호</NamingText>
-            <Input
-              type="password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </InputContainer>
-          <FrameInfoButton onClick={handleFrameInfo}>로그인</FrameInfoButton>
+          <InputLayout>
+            <InputContainer>
+              <NamingText>프레임 이름</NamingText>
+              <Input type="text" placeholder="프레임 (1~20)" value={name} onChange={(e) => setName(e.target.value)} />
+            </InputContainer>
+            <TagContainer>
+              <InputContainer>
+                <NamingText>태그</NamingText>
+                <Input
+                  type="text"
+                  placeholder="태그 (영어) 입력 후 Enter"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagAddition}
+                />
+              </InputContainer>
+              <TagList>
+                {tags.map((tag, index) => (
+                  <Tag key={index}>
+                    {tag}
+                    <TagDeleteButton onClick={() => handleTagDeletion(tag)}>x</TagDeleteButton>
+                  </Tag>
+                ))}
+              </TagList>
+            </TagContainer>
+          </InputLayout>
+          <FrameInfoButton onClick={handleCompleteFrame}>완성하기</FrameInfoButton>
         </InnerFrame>
       </StyledFrameInfo>
     </FrameInfoOverlay>
@@ -66,6 +81,7 @@ const FrameInfoOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 110;
 `;
 
 const StyledFrameInfo = styled.div`
@@ -74,7 +90,7 @@ const StyledFrameInfo = styled.div`
   height: 48%;
   display: flex;
   flex-direction: column;
-  padding: 20px 40px;
+  padding: 30px 40px 10px 40px;
   gap: 10px;
   align-items: center;
 `;
@@ -98,9 +114,18 @@ const InnerFrame = styled.div`
   background-color: ${color.white};
   border: 1px solid black;
   flex-direction: column;
-  gap: 16px;
-  padding: 80px 80px;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 56px 80px 40px 80px;
   align-items: center;
+`;
+
+const InputLayout = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+  background-color: transparent;
 `;
 
 const InputContainer = styled.div`
@@ -113,12 +138,21 @@ const InputContainer = styled.div`
 
 const NamingText = styled.div`
   ${font.p2}
-  background-color:transparent;
+  background-color: transparent;
+`;
+
+const TagContainer = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  background-color: transparent;
+  flex-direction: column;
 `;
 
 const Input = styled.input`
+  ${font.p2}
   width: 100%;
-  padding: 12px;
+  padding: 8px;
   border-radius: 5px;
   background-color: transparent;
 `;
@@ -134,4 +168,32 @@ const FrameInfoButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 20px;
+`;
+
+const TagList = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  background-color: transparent;
+`;
+
+const Tag = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: ${color.black};
+  border: 2px solid ${color.black};
+  background-color: transparent;
+`;
+
+const TagDeleteButton = styled.button`
+  margin-left: 4px;
+  background: none;
+  border: none;
+  color: ${color.black};
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
 `;

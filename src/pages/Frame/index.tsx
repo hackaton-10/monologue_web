@@ -6,6 +6,7 @@ import color from 'styles/color';
 import font from 'styles/font';
 import { postImg } from 'apis/posts';
 import Logo from 'assets/logo.svg';
+import FrameInfo from 'components/FrameInfo';
 
 interface ColorBoxProps {
   bgColor: string;
@@ -33,6 +34,7 @@ const Frame = () => {
   const [image, setImage] = useState<string>('');
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [visible, setVisible] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const validateFile = (file: File): boolean => {
@@ -103,6 +105,7 @@ const Frame = () => {
   };
 
   const handleCompleteImg = async () => {
+    showLoginModal();
     if (!frameRef.current) {
       toast('프레임을 찾을 수 없습니다.');
       return;
@@ -158,6 +161,14 @@ const Frame = () => {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const showLoginModal = () => {
+    setVisible(true);
+  };
+
+  const closeLoginModal = () => {
+    setVisible(false);
   };
 
   return (
@@ -231,9 +242,10 @@ const Frame = () => {
           ))}
         </FrameContainer>
         <ResultContainer onClick={handleCompleteImg} disabled={isUploading}>
-          {isUploading ? '업로드 중...' : '완성하기'}
+          {isUploading ? '업로드 중...' : '프레임 정보 입력'}
         </ResultContainer>
       </PreviewContainer>
+      {visible && <FrameInfo handleClose={closeLoginModal} />}
     </StyledFrame>
   );
 };
