@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 import { postImg } from 'apis/posts';
+// import Logo from 'assets/logo.svg';
 
 interface ColorBoxProps {
   bgColor: string;
@@ -143,7 +144,8 @@ const Frame = () => {
       }
 
       const imageData = canvas.toDataURL('image/png');
-      const response = await postImg(imageData);
+      const base64 = imageData.replace(/^data:image\/png;base64,/, '');
+      const response = await postImg(base64);
 
       if (response.success) {
         toast('이미지가 성공적으로 업로드되었습니다.');
@@ -375,8 +377,8 @@ const PreviewContainer = styled.div`
 const FrameContainer = styled.div<FrameProps>`
   display: flex;
   flex-direction: column;
-  width: 232px;
-  height: 696px;
+  width: 370px;
+  height: 500px;
   background-color: ${(props: { bgColor: string }) => props.bgColor};
   position: relative;
   overflow: hidden;
@@ -402,8 +404,8 @@ const FrameContainer = styled.div<FrameProps>`
 `;
 
 const FrameImg = styled.div`
-  width: 200px;
-  height: 132px;
+  width: 220px;
+  height: 278px;
   background-color: ${color.gray300};
   z-index: 1;
 `;
@@ -426,8 +428,8 @@ const StickerWrapper = styled.div`
 
 const DeleteButton = styled.button`
   position: absolute;
-  top: 12px;
-  right: 112px;
+  top: -12px;
+  right: -120px;
   background: ${color.black};
   color: white;
   border: none;

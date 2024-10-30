@@ -1,9 +1,20 @@
 import React from 'react';
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 import color from 'styles/color';
 import font from 'styles/font';
 
-const items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6', 'Item 7', 'Item 8'];
+const items = [
+  '#Flower',
+  '#Butterfly',
+  '#Vintage Camera',
+  '#Polaroid',
+  '#Starry Night',
+  '#Sunset Glow',
+  '#Ocean Waves',
+  '#Rainbow',
+  '#Sparkles',
+  '#Abstract Shapes',
+];
 
 const List = () => {
   return (
@@ -45,7 +56,6 @@ const Divider = styled.div`
 const MarqueeWrapper = styled.div`
   overflow: hidden;
   white-space: nowrap;
-  width: 100%;
 `;
 
 const MarqueeContainer = styled.div`
@@ -55,7 +65,7 @@ const MarqueeContainer = styled.div`
 
   @keyframes scroll {
     0% {
-      transform: translateX(0);
+      transform: translateX(0%);
     }
     100% {
       transform: translateX(-100%);
@@ -64,5 +74,8 @@ const MarqueeContainer = styled.div`
 `;
 
 const ListItem = styled.div`
-  ${font.p2}
+  width: 100%;
+
+  ${font.p2};
+  display: inline-block;
 `;
