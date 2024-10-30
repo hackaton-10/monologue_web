@@ -32,8 +32,7 @@ const Header = () => {
     const fetchUser = async () => {
       try {
         const data = await getUser();
-        if (data.res === 'fail') throw new Error('사용자 정보 없음');
-        setUserInfo(data.data);
+        setUserInfo(data.data.name);
       } catch {}
     };
     fetchUser();

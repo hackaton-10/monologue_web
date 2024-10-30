@@ -9,6 +9,6 @@ export const customAxios: AxiosInstance = axios.create({
 
 customAxios.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
-  config.headers.Authorization = token;
+  config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

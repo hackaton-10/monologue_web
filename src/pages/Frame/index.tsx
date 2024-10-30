@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
+import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 import { postImg } from 'apis/posts';
@@ -12,22 +13,44 @@ interface ColorBoxProps {
 
 interface FrameProps {
   bgColor: string;
-  imageUrl?: string;
+  imageUrl: string;
 }
 
 interface Sticker {
   src: string;
   width?: number;
   height?: number;
+  x: number;
+  y: number;
 }
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+
 const Frame = () => {
-  const [color, setColor] = useState<string>('#ffffff');
+  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
   const [image, setImage] = useState<string>('');
   const [stickers, setStickers] = useState<Sticker[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+
+  const validateFile = (file: File): boolean => {
+    if (file.size > MAX_FILE_SIZE) {
+      toast('파일 크기는 5MB를 초과할 수 없습니다.');
+      return false;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast('JPG, PNG, GIF 형식만 지원합니다.');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && validateFile(file)) {
       const reader = new FileReader();
       reader.onloadend = (e: ProgressEvent<FileReader>) => {
         if (e.target?.result && typeof e.target.result === 'string') {
@@ -40,12 +63,12 @@ const Frame = () => {
 
   const handleStickerUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && validateFile(file)) {
       const reader = new FileReader();
       reader.onloadend = (e: ProgressEvent<FileReader>) => {
         const result = e.target?.result;
         if (result && typeof result === 'string') {
-          setStickers((prevStickers) => [...prevStickers, { src: result }]);
+          setStickers((prevStickers) => [...prevStickers, { src: result, x: 0, y: 0 }]);
         }
       };
       reader.readAsDataURL(file);
@@ -68,14 +91,71 @@ const Frame = () => {
     );
   };
 
+  const handleStickerDrag = (index: number, data: { x: number; y: number }) => {
+    setStickers((prevStickers) =>
+      prevStickers.map((sticker, i) => (i === index ? { ...sticker, x: data.x, y: data.y } : sticker)),
+    );
+  };
+
   const handleDeleteSticker = (index: number) => {
-    setStickers((prevStickers) => prevStickers?.filter((_, i) => i !== index) || []);
+    setStickers((prevStickers) => prevStickers.filter((_, i) => i !== index));
   };
 
   const handleCompleteImg = async () => {
+    if (!frameRef.current) {
+      toast('프레임을 찾을 수 없습니다.');
+      return;
+    }
+
+    setIsUploading(true);
+
     try {
-      await postImg(image);
-    } catch {}
+      const canvas = document.createElement('canvas');
+      canvas.width = frameRef.current.offsetWidth;
+      canvas.height = frameRef.current.offsetHeight;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        throw new Error('Canvas context를 생성할 수 없습니다.');
+      }
+
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (image) {
+        const img = new Image();
+        img.src = image;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+
+      for (const sticker of stickers) {
+        const img = new Image();
+        img.src = sticker.src;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        ctx.drawImage(img, sticker.x, sticker.y, 96, 96);
+      }
+
+      const imageData = canvas.toDataURL('image/png');
+      const response = await postImg(imageData);
+
+      if (response.success) {
+        toast('이미지가 성공적으로 업로드되었습니다.');
+      } else {
+        throw new Error(response.message || '이미지 업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('이미지 처리 중 에러:', error);
+      toast('이미지 처리 중 문제가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -85,22 +165,24 @@ const Frame = () => {
           <Title>프레임 꾸미기</Title>
           <ColorPalette>
             <GradientColor />
-            <ColorBox bgColor="#FFFFFF" onClick={() => setColor('#FFFFFF')} />
-            <ColorBox bgColor="#E5E5E5" onClick={() => setColor('#E5E5E5')} />
-            <ColorBox bgColor="#808080" onClick={() => setColor('#808080')} />
-            <ColorBox bgColor="#4D4D4D" onClick={() => setColor('#4D4D4D')} />
-            <ColorBox bgColor="#343434" onClick={() => setColor('#343434')} />
-            <ColorBox bgColor="#000000" onClick={() => setColor('#000000')} />
-            <ColorBox bgColor="#FF0000" onClick={() => setColor('#FF0000')} />
-            <ColorBox bgColor="#0000FF" onClick={() => setColor('#0000FF')} />
+            <ColorBox bgColor="#FFFFFF" onClick={() => setBackgroundColor('#FFFFFF')} />
+            <ColorBox bgColor="#E5E5E5" onClick={() => setBackgroundColor('#E5E5E5')} />
+            <ColorBox bgColor="#808080" onClick={() => setBackgroundColor('#808080')} />
+            <ColorBox bgColor="#4D4D4D" onClick={() => setBackgroundColor('#4D4D4D')} />
+            <ColorBox bgColor="#343434" onClick={() => setBackgroundColor('#343434')} />
+            <ColorBox bgColor="#000000" onClick={() => setBackgroundColor('#000000')} />
+            <ColorBox bgColor="#FF0000" onClick={() => setBackgroundColor('#FF0000')} />
+            <ColorBox bgColor="#0000FF" onClick={() => setBackgroundColor('#0000FF')} />
           </ColorPalette>
           <StickerContainer htmlFor="sticker">
             <FileInputText>스티커 업로드하기</FileInputText>
           </StickerContainer>
-          <FileInput type="file" accept="image/*" id="sticker" onChange={handleStickerUpload} />
+          <FileInput type="file" accept="image/*" id="sticker" onChange={handleStickerUpload} disabled={isUploading} />
         </FrameColorLayout>
         {image ? (
-          <ResetButton onClick={handleReset}>새로운 사진 넣기</ResetButton>
+          <ResetButton onClick={handleReset} disabled={isUploading}>
+            새로운 사진 넣기
+          </ResetButton>
         ) : (
           <FileInputWrapper>
             <PlaceholderText>
@@ -111,31 +193,39 @@ const Frame = () => {
             <FileInputContainer htmlFor="file">
               <FileInputText>파일 업로드하기</FileInputText>
             </FileInputContainer>
-            <FileInput type="file" accept="image/*" id="file" onChange={handleFileChange} />
+            <FileInput type="file" accept="image/*" id="file" onChange={handleFileChange} disabled={isUploading} />
           </FileInputWrapper>
         )}
       </EditContainer>
       <PreviewContainer>
-        <FrameContainer bgColor={color} imageUrl={image}>
+        <FrameContainer ref={frameRef} bgColor={backgroundColor} imageUrl={image}>
           <FrameImg />
           <FrameImg />
           <FrameImg />
           <FrameImg />
-          {stickers &&
-            stickers.map((sticker, index) => (
-              <Draggable key={index}>
-                <StickerWrapper>
-                  <StickerContiner
-                    src={sticker.src}
-                    alt={`sticker-${index}`}
-                    onLoad={(e) => handleStickerLoad(e, index)}
-                  />
-                  <DeleteButton onClick={() => handleDeleteSticker(index)}>X</DeleteButton>
-                </StickerWrapper>
-              </Draggable>
-            ))}
+          {stickers.map((sticker, index) => (
+            <Draggable
+              key={index}
+              position={{ x: sticker.x, y: sticker.y }}
+              onStop={(_, data) => handleStickerDrag(index, data)}
+              disabled={isUploading}
+            >
+              <StickerWrapper>
+                <StickerContiner
+                  src={sticker.src}
+                  alt={`sticker-${index}`}
+                  onLoad={(e) => handleStickerLoad(e, index)}
+                />
+                <DeleteButton onClick={() => handleDeleteSticker(index)} disabled={isUploading}>
+                  X
+                </DeleteButton>
+              </StickerWrapper>
+            </Draggable>
+          ))}
         </FrameContainer>
-        <ResultContainer onClick={handleCompleteImg}>완성하기</ResultContainer>
+        <ResultContainer onClick={handleCompleteImg} disabled={isUploading}>
+          {isUploading ? '업로드 중...' : '완성하기'}
+        </ResultContainer>
       </PreviewContainer>
     </StyledFrame>
   );
@@ -353,7 +443,7 @@ const DeleteButton = styled.button`
   }
 `;
 
-const ResultContainer = styled.div`
+const ResultContainer = styled.button`
   padding: 10px 36px;
   border: none;
   color: white;
