@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { styled } from 'styled-components';
 import Logo from 'assets/logo.svg';
+import LoginModal from 'components/Login/index';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +18,14 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const showLoginModal = () => {
+    setVisible(true);
+  };
+
+  const closeLoginModal = () => {
+    setVisible(false);
+  };
+
   return (
     <StyledHeader isScrolled={isScrolled}>
       <LogoContainer
@@ -25,7 +35,8 @@ const Header = () => {
         src={Logo}
         alt="로고"
       />
-      <LoginButton>로그인</LoginButton>
+      <LoginButton onClick={showLoginModal}>로그인</LoginButton>
+      {visible && <LoginModal handleClose={closeLoginModal} />}
     </StyledHeader>
   );
 };
