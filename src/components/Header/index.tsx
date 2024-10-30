@@ -4,6 +4,7 @@ import { styled } from 'styled-components';
 import Logo from 'assets/logo.svg';
 import LoginModal from 'components/Login/index';
 import { getUser } from 'apis/gets';
+import font from 'styles/font';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -47,7 +48,7 @@ const Header = () => {
         src={Logo}
         alt="로고"
       />
-      {userInfo ? <div>{userInfo} 님</div> : <LoginButton onClick={showLoginModal}>로그인</LoginButton>}
+      {userInfo ? <NameText>{userInfo} 님</NameText> : <LoginButton onClick={showLoginModal}>로그인</LoginButton>}
       {visible && <LoginModal handleClose={closeLoginModal} />}
     </StyledHeader>
   );
@@ -89,4 +90,9 @@ const LoginButton = styled.button`
   background-color: black;
   border-radius: 20px;
   cursor: pointer;
+`;
+
+const NameText = styled.div`
+  ${font.p3}
+  background-color: transparent;
 `;

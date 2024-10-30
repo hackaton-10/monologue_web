@@ -1,21 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import font from '../../styles/font';
 import MakingFrame from 'assets/MakingFrame.svg';
+import { getUser } from 'apis/gets';
 
 const Main = () => {
   const [isLogin, setIsLogin] = useState(false);
   const navigate = useNavigate();
 
-  const handledd = () => {
-    setIsLogin(true);
-  };
+  useLayoutEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const data = await getUser();
+        setIsLogin(data.data.name);
+      } catch {}
+    };
+    fetchUser();
+  }, [location]);
 
   return (
     <StyledMain>
       <TitleContainer>
-        <Title onClick={handledd}>
+        <Title>
           AI
           <br />
           FRAME
