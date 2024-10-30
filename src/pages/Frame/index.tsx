@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 import { postImg } from 'apis/posts';
-// import Logo from 'assets/logo.svg';
+import Logo from 'assets/logo.svg';
 
 interface ColorBoxProps {
   bgColor: string;
@@ -201,10 +201,15 @@ const Frame = () => {
       </EditContainer>
       <PreviewContainer>
         <FrameContainer ref={frameRef} bgColor={backgroundColor} imageUrl={image}>
-          <FrameImg />
-          <FrameImg />
-          <FrameImg />
-          <FrameImg />
+          <FrameLayout>
+            <FrameImg />
+            <FrameImg />
+          </FrameLayout>
+          <FrameLayout>
+            <FrameImg />
+            <FrameImg />
+          </FrameLayout>
+          <LogoContainer src={Logo} alt="로고" />
           {stickers.map((sticker, index) => (
             <Draggable
               key={index}
@@ -381,10 +386,9 @@ const FrameContainer = styled.div<FrameProps>`
   height: 500px;
   background-color: ${(props: { bgColor: string }) => props.bgColor};
   position: relative;
-  overflow: hidden;
-  padding-top: 17px;
-  padding-left: 17px;
-  gap: 12px;
+  padding: 10px;
+  align-items: center;
+  gap: 10px;
 
   ${(props) =>
     props.imageUrl &&
@@ -403,9 +407,22 @@ const FrameContainer = styled.div<FrameProps>`
   `}
 `;
 
+const FrameLayout = styled.div`
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  background-color: transparent;
+`;
+
+const LogoContainer = styled.img`
+  z-index: 1;
+  background-color: transparent;
+  margin-top: 15px;
+`;
+
 const FrameImg = styled.div`
-  width: 220px;
-  height: 278px;
+  width: 170px;
+  height: 210px;
   background-color: ${color.gray300};
   z-index: 1;
 `;
