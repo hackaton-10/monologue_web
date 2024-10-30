@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import color from 'styles/color';
 import font from 'styles/font';
+import { postImg } from 'apis/posts';
 
 interface ColorBoxProps {
   bgColor: string;
@@ -71,6 +72,12 @@ const Frame = () => {
     setStickers((prevStickers) => prevStickers?.filter((_, i) => i !== index) || []);
   };
 
+  const handleCompleteImg = async () => {
+    try {
+      await postImg(image);
+    } catch {}
+  };
+
   return (
     <StyledFrame>
       <EditContainer>
@@ -128,7 +135,7 @@ const Frame = () => {
               </Draggable>
             ))}
         </FrameContainer>
-        <ResultContainer>완성하기</ResultContainer>
+        <ResultContainer onClick={handleCompleteImg}>완성하기</ResultContainer>
       </PreviewContainer>
     </StyledFrame>
   );

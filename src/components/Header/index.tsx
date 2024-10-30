@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { styled } from 'styled-components';
 import Logo from 'assets/logo.svg';
 import LoginModal from 'components/Login/index';
@@ -28,15 +28,16 @@ const Header = () => {
     setVisible(false);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const fetchUser = async () => {
       try {
         const data = await getUser();
-        setUserInfo(data.data.name);
+        if (data.res === 'fail') throw new Error('사용자 정보 없음');
+        setUserInfo(data.data);
       } catch {}
     };
     fetchUser();
-  }, []);
+  }, [location]);
 
   return (
     <StyledHeader isScrolled={isScrolled}>

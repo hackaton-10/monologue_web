@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { styled } from 'styled-components';
 import { signIn } from 'apis/posts';
-import { toast } from 'react-toastify';
 import color from 'styles/color';
 import font from 'styles/font';
 
@@ -16,16 +15,15 @@ const Login = ({ handleClose }: Props) => {
   const handleLogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (id.length === 0 || password.length === 0) {
-      return toast.error('아이디 또는 비밀번호를 입력해주세요');
+      alert('아이디 또는 비밀번호 입력하세요');
     }
     try {
       const data = await signIn(id, password);
-      localStorage.setItem('accessToken', data.token);
+      localStorage.setItem('accessToken', data.data.accessToken);
       handleClose();
-      window.location.reload();
-      return toast.success('로그인 성공');
+      alert('로그인 성공');
     } catch {
-      return toast.error('에러가 발생하였습니다');
+      return alert('에러가 발생하였습니다');
     }
   };
 

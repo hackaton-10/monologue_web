@@ -7,3 +7,10 @@ export const signIn = async (id: string, password: string) => {
   });
   return data;
 };
+
+export const postImg = async (image: string) => {
+  const { data } = await customAxios.post('/user/image', {
+    image,
+  });
+  return data;
+};
